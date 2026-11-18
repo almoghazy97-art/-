@@ -352,8 +352,7 @@ document.getElementById("loginBtn").onclick = async () => {
     await auth.signInWithEmailAndPassword(email, password);
     msg.textContent = "تم تسجيل الدخول";
   } catch (e) {
-    msg.textContent = "خطأ في البريد أو كلمة المرور";
-  }
+msg.textContent = e.code + " - " + e.message;  }
 };
 auth.onAuthStateChanged(async user => {
   if (!user) {
