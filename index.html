@@ -11,14 +11,14 @@
  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
- body:not(.authenticated) header,
+<style>
+ body:not(.authenticated) header,               
 body:not(.authenticated) main {
   display: none !important;
 }
 body.authenticated #login {
   display: none !important;
 }
-<style>
 :root{--bg:#f4f6fa;--fg:#1b2438;--card:#fff;--line:#d5dbe6;--mut:#667089;--ac:#1f3864;--ok:#2e7d32;--warn:#b26a00;--bad:#c62828;--head:#1f3864;--alt:#f4f6fa;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--fg:#e6eaf3;--card:#18202e;--line:#2c3649;--mut:#98a3bb;--ac:#7fa4e8;--ok:#66bb6a;--warn:#ffb74d;--bad:#ef6c6c;--head:#25375f;--alt:#1c2535;color-scheme:dark}}
@@ -355,19 +355,16 @@ document.getElementById("loginBtn").onclick = async () => {
     msg.textContent = "خطأ في البريد أو كلمة المرور";
   }
 };
-
 auth.onAuthStateChanged(async user => {
   if (!user) {
     document.body.classList.remove("authenticated");
     return;
   }
-
   const email = (user.email || "").toLowerCase();
   if (![ownerEmail, managerEmail].includes(email)) {
     await auth.signOut();
     return;
   }
-
   RO = email === managerEmail;
   document.body.classList.add("authenticated");
   if (RO) {
@@ -395,3 +392,4 @@ auth.onAuthStateChanged(async user => {
 </script>
 </body>
 </html>
+
