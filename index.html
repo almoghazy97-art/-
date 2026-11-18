@@ -384,7 +384,13 @@ auth.onAuthStateChanged(async user => {
       render();
       setSync("☁ محفوظ ومتزامن");
     } else {
-      setSync(RO ? "لا توجد بيانات سحابية بعد" : "لا توجد بيانات سحابية بعد");
+      if (!RO) {
+        db.doc("app/state").set(S)
+          .then(() => setSync("☁ تم رفع البيانات إلى السحابة"))
+          .catch(e => setSync("فشل رفع البيانات: " + e.message));
+      } else {
+        setSync("لا توجد بيانات سحابية بعد");
+      }
     }
   }, e => setSync("تعذّر الاتصال: راجع صلاحيات Firestore"));
 });
