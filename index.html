@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الحالة التنفيذية للمشاريع</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#f4f6fa;--fg:#1b2438;--card:#fff;--line:#d5dbe6;--mut:#667089;--ac:#1f3864;--ok:#2e7d32;--warn:#b26a00;--bad:#c62828;--head:#1f3864;--alt:#f4f6fa;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151f;--fg:#e6eaf3;--card:#18202e;--line:#2c3649;--mut:#98a3bb;--ac:#7fa4e8;--ok:#66bb6a;--warn:#ffb74d;--bad:#ef6c6c;--head:#25375f;--alt:#1c2535;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10151f;--fg:#e6eaf3;--card:#18202e;--line:#2c3649;--mut:#98a3bb;--ac:#7fa4e8;--ok:#66bb6a;--warn:#ffb74d;--bad:#ef6c6c;--head:#25375f;--alt:#1c2535;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Cairo,Tahoma,"Segoe UI",Arial,sans-serif;font-size:14px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--card);border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:20px;color:var(--ac)}
+.date{color:var(--mut);font-size:13px}.date b{color:var(--fg)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font-family:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:8px;cursor:pointer}
+button.p{background:var(--head);color:#fff;border-color:var(--head)}button.d{color:var(--bad)}
+button:disabled{opacity:.5}
+label.t{font-size:12px;color:var(--mut)}label.t input{width:52px;margin:0 4px}
+main{padding:16px 18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.card small{color:var(--mut);display:block;font-size:12px}.card b{font-size:17px}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap}
+th{background:var(--head);color:#fff;padding:9px 8px;font-weight:600;white-space:normal;min-width:84px;position:sticky;top:0}
+td{padding:8px;border-top:1px solid var(--line);text-align:center}
+tr:nth-child(even) td{background:var(--alt)}
+td.l{text-align:right;font-weight:600}
+tr.tot td{background:var(--line);font-weight:700}
+.neg{color:var(--bad);font-weight:600}
+.s{padding:2px 9px;border-radius:12px;font-weight:600;font-size:12px}
+.s0{background:#c6e0b4;color:#1b5e20}.s1{background:#ffe699;color:#7a4b00}.s2{background:#f8cbad;color:#a31515}.s3{background:#c6e0b4;color:#1b5e20}.s4{background:#f8cbad;color:#a31515}
+.empty{padding:30px;text-align:center;color:var(--mut)}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 12px;z-index:5}
+#ov.on{display:flex}
+.box{background:var(--card);border-radius:12px;max-width:640px;width:100%;padding:18px}
+.box h2{margin:0 0 12px;font-size:17px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.g label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:4px}
+.g input,.g select{font-family:inherit;font-size:14px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.full{grid-column:1/-1}
+.act{display:flex;gap:8px;margin-top:14px;justify-content:flex-start}
+.bar input:not([type=file]),.bar select{font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+body.ro #add,body.ro #im,body.ro #lgb,body.ro #lgx,body.ro #lk,body.ro #sv,body.ro #dl,body.ro #cadd,body.ro #pup,body.ro [data-up],body.ro [data-dc],body.ro [data-rf]{display:none!important}
+body.view #xl,body.view #pdf,body.view #bk,body.view #mg,body.view #sh,body.view .ib,body.ro #mg,body.ro #sh{display:none!important}
+.warn td{background:rgba(255,193,7,.22)!important}
+.note{margin-top:12px;color:var(--mut);font-size:12px;line-height:1.7}
+#msg{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--head);color:#fff;padding:9px 16px;border-radius:8px;display:none;z-index:9}
+</style>
+</head>
+<body>
+<header>
+ <div><h1>الحالة التنفيذية للمشاريع</h1><div class="date">تاريخ اليوم: <b id="today"></b> <span style="opacity:.7">(يتحدث تلقائياً)</span></div><div class="date" id="sync"></div></div>
+ <div class="bar">
+  <input id="co" placeholder="اسم الشركة (للتقرير)" style="font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:150px"><img id="lg" alt="" style="height:30px;display:none"><button id="lgb">شعار الشركة</button><button id="lgx" class="d" style="display:none">حذف الشعار</button><input type="file" id="lf" accept="image/*" hidden>
+  <label class="t">حد التأخر الطفيف<input type="number" id="thr" min="0" max="100" step="1" style="width:56px">%</label>
+  <button class="p" id="add">+ مشروع جديد</button>
+  <button id="xl">تصدير Excel</button>
+  <button id="pdf">تصدير PDF</button>
+  <button id="mg">نسخة للمدير (عرض فقط)</button><button id="sh">إرسال للمدير</button><button id="bk">نسخة احتياطية</button><button id="im">استيراد</button><button id="lk" style="display:none">ربط ملف بيانات</button><input type="file" id="imf" accept=".json,application/json" hidden>
+ </div>
+</header>
+<main>
+ <div id="alr" class="note" style="display:none;background:rgba(255,193,7,.15);border:1px solid #e0a800;border-radius:10px;padding:8px 12px;margin:0 0 12px;color:var(--fg)"></div><div class="bar" style="margin-bottom:12px"><button data-tab="run"></button><button data-tab="done"></button><button data-tab="fut"></button><button data-tab="all"></button><button data-tab="ext"></button></div>
+ <div class="bar" style="margin-bottom:12px"><input id="q" placeholder="بحث بالاسم أو الجهة أو البنك" style="width:190px"><select id="fs"><option value="">كل حالات المشروع</option><option>جاري</option><option>متوقف</option><option>استلام ابتدائي</option><option>مغلق</option></select><label class="t">الضريبة %<input type="number" id="vr" style="width:56px"></label><select id="vm"><option value="incl">المبالغ المدخلة شاملة الضريبة</option><option value="excl">المبالغ المدخلة غير شاملة (تُضاف عليها)</option></select><label class="t">تنبيه انتهاء المشروع قبل (يوم)<input type="number" id="ae" style="width:60px"></label><label class="t">تنبيه الضمان قبل (يوم)<input type="number" id="al" style="width:60px"></label></div>
+ <div class="cards" id="cards"></div>
+ <div class="wrap"><div id="tbl"></div></div>
+ <div class="note">تُحفظ البيانات على السيرفر وتظهر على أي جهاز تفتح منه الرابط. اضغط على اسم المشروع للتعديل. المدد بالأيام، ونسبة الانحراف = نسبة الإنجاز − نسبة المدة المنقضية (السالب = تأخر). صدّر ملف Excel بشكل دوري كنسخة احتياطية.</div>
+</main>
+<div id="ov"><div class="box"><h2 id="ft"></h2><div class="g" id="fg"></div><div id="pv" class="note"></div><h3 style="margin:14px 0 6px;font-size:14px">التمديدات وتعديلات القيمة</h3><div id="chl"></div><div class="g" style="margin-top:8px"><label>النوع<select id="ct"><option value="time">تمديد مدة (أيام)</option><option value="value">تعديل قيمة (مبلغ، سالب للتخفيض)</option></select></label><label>الأيام / المبلغ<input id="cn2" type="number" step="any"></label><label>التاريخ<input id="cd" type="date"></label><label>البيان<input id="cb"></label></div><button id="cadd" style="margin-top:8px">+ إضافة تعديل</button><h3 style="margin:14px 0 6px;font-size:14px">مرفقات المشروع</h3><div id="pfl"></div><button id="pup">+ إرفاق ملف</button>
+ <div class="act"><button class="p" id="sv">حفظ</button><button id="cn">إلغاء</button><button class="d" id="dl" style="margin-right:auto">حذف المشروع</button></div></div></div>
+<div id="msg"></div>
+<script id="seed" type="application/json"></script>
+<script>
+const FIELDS=[["name","اسم المشروع","t",1],["owner","الجهة المالكة","t"],["bank","البنك الممول","t"],["guar","قيمة الضمان النهائي","n"],
+["cv","قيمة المشروع حسب العقد","n"],["d0","مدة المشروع (يوم)","n"],
+["start","تاريخ تسليم الموقع","date"],["billed","إجمالي الأعمال المفوترة","n"],["unbilled","الأعمال غير المفوترة","n"],["paid","ما تم صرفه سابقاً","n"],["ret","نسبة المحتجزات %","n"],["gexp","تاريخ انتهاء خطاب الضمان","date"],["adv","الدفعة المقدمة","n"],["advr","المسترد من الدفعة المقدمة","n"],["pr","غرامة التأخير % للأسبوع","n"],["pc","سقف الغرامة %","n"],["stat","حالة المشروع","sel"],["eng","مهندس المشروع","t"],["fin","تاريخ الاستلام النهائي","date"],["iban","آيبان المشروع (IBAN)","t"],["cost","التكاليف المتكبدة حتى الآن","n"],["est","التكلفة الإجمالية المقدرة للمشروع","n"]];
+const DAY=864e5, KEY="proj_exec_v1";
+let S={list:[],thr:10,logo:"",co:""}, edit=-1, db=null, D={changes:[],files:[]}, RO=false;
+let hadLocal=false;try{const r=localStorage.getItem(KEY);if(r&&!window.VIEW){S=JSON.parse(r);hadLocal=true}}catch(e){}
+try{const e=document.getElementById("seed");if(!hadLocal&&e&&e.textContent.trim()){const sd=JSON.parse(e.textContent);if(Array.isArray(sd.list))S=Object.assign(S,sd)}}catch(x){}
+let seen=false;try{seen=!!localStorage.getItem(KEY+"_seen")}catch(e){}
+if(!S.list.length&&!seen){
+ const y=new Date();y.setDate(y.getDate()-200);
+ S.list=[{name:"مثال - مبنى إداري",owner:"الجهة المالكة",bank:"البنك الممول",guar:500000,cv:10000000,mv:10800000,d0:365,d1:420,start:y.toISOString().slice(0,10),billed:5200000,unbilled:900000,paid:4500000}];
+}
+const setSync=t=>{const e=document.getElementById("sync");if(e)e.textContent=t};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));localStorage.setItem(KEY+"_seen","1")}catch(e){}pushDb();clearTimeout(fwt);fwt=setTimeout(fWrite,500)};
+async function pushDb(){if(!db)return;try{await db.doc("app/state").set({list:S.list,thr:S.thr,logo:S.logo||"",co:S.co||"",vr:S.vr||15,vm:S.vm||"incl",al:S.al??60,ae:S.ae??30,t:Date.now()});setSync("☁ محفوظ ومتزامن")}catch(e){msg("تعذّر الحفظ على السيرفر");setSync("⚠ غير محفوظ على السيرفر")}}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=()=>{const n=new Date();return Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())};
+const nf=n=>Math.round(n).toLocaleString("en-US");
+const pf=x=>(x*100).toFixed(1)+"%";
+const df=ms=>{const d=new Date(ms);return String(d.getUTCDate()).padStart(2,"0")+"/"+String(d.getUTCMonth()+1).padStart(2,"0")+"/"+d.getUTCFullYear()};
+const cat=(p,c)=>!p.start?"fut":c.rem!=null&&c.rem<0?"done":"run";
+const TN={run:"تحت التنفيذ",done:"المشاريع المنتهية",fut:"المشاريع المستقبلية",all:"الكل (الإجمالي)",ext:"المستخلصات القائمة"};
+const CL={run:"تحت التنفيذ",done:"منتهي",fut:"مستقبلي"};
+const inTab=(p,c)=>S.tab==="all"||cat(p,c)===(S.tab||"run");
+const sm=(p,t)=>(p.changes||[]).filter(x=>x.type===t).reduce((a,x)=>a+(+x.n||0),0);
+const STS=["جاري","متوقف","استلام ابتدائي","مغلق"];
+const match=p=>{const q=(S.q||"").trim();return(!q||[p.name,p.owner,p.bank,p.eng].join(" ").includes(q))&&(!S.fs||p.stat===S.fs)};
+const X=(p,ev,end,t)=>{const bl=p.billed||0,ld=end&&!["استلام ابتدائي","مغلق"].includes(p.stat)?Math.max(0,Math.round((t-end)/DAY)):0,pen=ev*Math.min(p.pc||0,Math.floor(ld/7)*(p.pr||0))/100,ret=bl*(p.ret||0)/100,r=(S.vr||15)/100,vat=S.vm==="excl"?bl*r:bl*r/(1+r);
+ return{ret,net:bl-(p.paid||0)-ret,ld,pen,vat,adv:(p.adv||0)-(p.advr||0),gd:p.gexp?Math.round((Date.parse(p.gexp+"T00:00:00Z")-t)/DAY):null}};
+function calc(p){
+ const t=today(),ev=(p.cv||0)+sm(p,"value"),du=(p.d0||0)+sm(p,"time"),s=p.start?Date.parse(p.start+"T00:00:00Z"):NaN,ok=!isNaN(s)&&du>0;
+ const tot=(p.billed||0)+(p.unbilled||0),prog=ev>0?tot/ev:0,end=ok?s+du*DAY:null;
+ const tp=ok?Math.min(1,Math.max(0,(t-s)/DAY/du)):null,dev=tp==null?null:prog-tp;
+ let st=dev==null?"":dev>=0?0:dev>=-S.thr/100?1:2;if(ok&&Math.round((end-t)/DAY)<0)st=prog>=0.999?3:4;
+ return{ev,end,tot,prog,el:ok?Math.max(0,Math.round((t-s)/DAY)):null,rem:ok?Math.round((end-t)/DAY):null,tp,dev,st,du,out:(p.billed||0)-(p.paid||0),left:ev-tot,...X(p,ev,end,t),cost:p.cost||0,pg:tot-(p.cost||0),pm:tot>0?(tot-(p.cost||0))/tot:null,pe:p.est>0?ev-p.est:null};
+}
+const STN=["متقدم / ملتزم","تأخر طفيف","متأخر","مكتمل (منتهي المدة)","منتهي المدة وغير مكتمل"];
+// [label, value(p,c), type]
+const COLS_ALL=[["اسم المشروع",p=>p.name,"t"],["الجهة المالكة",p=>p.owner,"t"],["البنك الممول",p=>p.bank,"t"],["قيمة الضمان النهائي",p=>p.guar,"n"],
+["قيمة المشروع حسب العقد",p=>p.cv,"n"],["قيمة المشروع المعدلة",(p,c)=>c.ev!==p.cv?c.ev:null,"n"],["مدة المشروع (يوم)",p=>p.d0,"i"],["مدة المشروع المعدلة (يوم)",(p,c)=>c.du!==p.d0?c.du:null,"i"],
+["تاريخ تسليم الموقع",p=>p.start?Date.parse(p.start+"T00:00:00Z"):null,"d"],["تاريخ الاستلام الابتدائي المقرر",(p,c)=>c.end,"d"],
+["إجمالي الأعمال المفوترة",p=>p.billed,"n"],["الأعمال غير المفوترة",p=>p.unbilled,"n"],["الإجمالي الكلي للأعمال المنفذة",(p,c)=>c.tot,"n"],
+["نسبة الإنجاز",(p,c)=>c.prog,"p"],["الأيام المنقضية",(p,c)=>c.el,"i"],["الأيام المتبقية",(p,c)=>c.rem,"rd"],["نسبة المدة المنقضية",(p,c)=>c.tp,"p"],
+["نسبة الانحراف",(p,c)=>c.dev,"v"],["الحالة",(p,c)=>c.st===""?"":STN[c.st],"s"],["ما تم صرفه سابقاً",p=>p.paid,"n"],
+["المستخلصات القائمة",(p,c)=>c.out,"n"],["المبالغ المتبقية من المشاريع",(p,c)=>c.left,"n"],["المحتجزات",(p,c)=>c.ret,"n"],["صافي المستحق تحصيله",(p,c)=>c.net,"n"],["الدفعة المقدمة المتبقية",(p,c)=>c.adv,"n"],["أيام التأخر",(p,c)=>c.ld,"i"],["الغرامة المتوقعة",(p,c)=>c.pen,"n"],["ضريبة القيمة المضافة على المفوتر",(p,c)=>c.vat,"n"],["تاريخ انتهاء الضمان",p=>p.gexp?Date.parse(p.gexp+"T00:00:00Z"):null,"d"],["أيام لانتهاء الضمان",(p,c)=>c.gd,"g"],["حالة المشروع",p=>p.stat||"","t"],["مهندس المشروع",p=>p.eng,"t"],["تاريخ الاستلام النهائي",p=>p.fin?Date.parse(p.fin+"T00:00:00Z"):null,"d"],["التكاليف المتكبدة",(p,c)=>c.cost,"n"],["مجمل الربح الحالي (المنفذ − التكاليف)",(p,c)=>c.pg,"r"],["نسبة الربح من المنفذ",(p,c)=>c.pm,"v"],["مجمل الربح المتوقع (القيمة − التكلفة المقدرة)",(p,c)=>c.pe,"r"],["المرفقات",p=>(p.files||[]).map(f=>f.name).join("، "),"f"],["التصنيف",(p,c)=>({fut:"مستقبلي",done:"منتهي",run:"تحت التنفيذ"}[cat(p,c)]),"t"],["آيبان المشروع",p=>p.iban||"","ib"]];
+const COLS=COLS_ALL;
+function cell(v,ty,c){
+ if(v==null||v==="")return"<td>-</td>";
+ if(ty==="t")return`<td>${esc(v)}</td>`;
+ if(ty==="n")return`<td>${v?nf(v):"-"}</td>`;
+ if(ty==="i")return`<td>${nf(v)}</td>`;
+ if(ty==="d")return`<td>${df(v)}</td>`;
+ if(ty==="p")return`<td>${pf(v)}</td>`;
+ if(ty==="rd")return`<td class="${v<0?"neg":""}">${v<0?"منتهي منذ "+nf(-v)+" يوم":nf(v)}</td>`;
+ if(ty==="r")return`<td class="${v<0?"neg":""}">${nf(v)}</td>`;
+ if(ty==="v")return`<td class="${v<0?"neg":""}">${pf(v)}</td>`;
+ if(ty==="ib")return`<td dir="ltr">${esc(v)}</td>`;
+ if(ty==="g")return`<td class="${v<=S.al?"neg":""}">${v<0?"منتهي":nf(v)}</td>`;
+ if(ty==="s")return`<td><span class="s s${c.st}">${v}</span></td>`;
+}
+function extHTML(){
+ const rows=S.list.map(p=>({p,c:calc(p)})).filter(x=>match(x.p)&&x.c.out>0).sort((a,b)=>b.c.out-a.c.out);
+ if(!rows.length)return'<div class="empty">لا توجد مستخلصات قائمة.</div>';
+ const sub={run:0,done:0,fut:0};let b=0,pd=0,o=0,r=0,n=0;
+ let h='<table><thead><tr>'+["اسم المشروع","الجهة المالكة","آيبان المشروع","تصنيف المشروع","إجمالي المفوتر","ما تم صرفه","المستخلصات القائمة","المحتجزات","صافي المستحق تحصيله"].map(x=>`<th${x.includes("آيبان")?' class="ib"':""}>${x}</th>`).join("")+"</tr></thead><tbody>";
+ rows.forEach(({p,c})=>{const k=cat(p,c);sub[k]+=c.out;b+=p.billed||0;pd+=p.paid||0;o+=c.out;r+=c.ret;n+=c.net;
+  h+=`<tr><td class="l"><a href="#" data-e="${S.list.indexOf(p)}" style="color:var(--ac);text-decoration:none">${esc(p.name)}</a></td><td>${esc(p.owner)}</td><td dir="ltr" class="ib">${esc(p.iban)}</td><td>${CL[k]}</td><td>${nf(p.billed||0)}</td><td>${nf(p.paid||0)}</td><td><b>${nf(c.out)}</b></td><td>${nf(c.ret)}</td><td>${nf(c.net)}</td></tr>`});
+ h+=`<tr class="tot"><td>الإجمالي</td><td></td><td class="ib"></td><td></td><td>${nf(b)}</td><td>${nf(pd)}</td><td>${nf(o)}</td><td>${nf(r)}</td><td>${nf(n)}</td></tr></tbody></table>`;
+ const bx=(t,v)=>`<div class="card"><small>${t}</small><b>${nf(v)}</b></div>`;
+ return`<div class="cards" style="padding:10px;margin:0">${bx("قائمة - مشاريع تحت التنفيذ",sub.run)}${bx("قائمة - مشاريع منتهية",sub.done)}${sub.fut?bx("قائمة - مشاريع مستقبلية",sub.fut):""}${bx("إجمالي المستخلصات القائمة",o)}</div>`+h;
+}
+function tableHTML(act){if(S.tab==="ext")return extHTML();const COLS=window.VIEW?COLS_ALL.slice(0,33):act?COLS_ALL:COLS_ALL.slice(0,22);
+ if(!S.list.length)return'<div class="empty">لا توجد مشاريع بعد. اضغط (+ مشروع جديد) للبدء.</div>';
+ if(!S.list.some(p=>match(p)&&inTab(p,calc(p))))return'<div class="empty">لا توجد مشاريع في هذا القسم.</div>';
+ let h="<table><thead><tr>"+COLS.map(c=>`<th>${c[0]}</th>`).join("")+(act?"<th></th>":"")+"</tr></thead><tbody>";
+ const sum={};const keys=[3,4,5,10,11,12,19,20,21,22,23,24,26,27,33,34,36];
+ S.list.forEach((p,i)=>{const c=calc(p);if(!match(p)||!inTab(p,c))return;h+=`<tr class="${c.rem!=null&&c.rem>=0&&c.rem<=S.ae?"warn":""}">`;
+  COLS.forEach((col,j)=>{const v=col[1](p,c);if(keys.includes(j))sum[j]=(sum[j]||0)+(v||0);
+   if(j===0)h+=`<td class="l">${act?`<a href="#" data-e="${i}" style="color:var(--ac);text-decoration:none">${esc(v)}</a>`:esc(v)}</td>`;else h+=col[2]==="f"&&(p.files||[]).length?`<td>${(p.files||[]).map(f=>`<a href="${esc(f.url)}" target="_blank" style="color:var(--ac)">📎 ${esc(f.name)}</a>`).join(" ")}</td>`:cell(v,col[2],c)});
+  h+=(act?`<td><button data-e="${i}">تعديل</button></td>`:"")+"</tr>"});
+ h+='<tr class="tot">'+COLS.map((col,j)=>j===0?"<td>الإجمالي</td>":keys.includes(j)?`<td>${nf(sum[j]||0)}</td>`:"<td></td>").join("")+(act?"<td></td>":"")+"</tr></tbody></table>";
+ return h;
+}
+function render(){
+ $("today").textContent=df(today());migrate();$("thr").value=S.thr;$("co").value=S.co||"";$("vr").value=S.vr;$("vm").value=S.vm;$("al").value=S.al;$("ae").value=S.ae;$("fs").innerHTML=`<option value="">كل حالات المشروع (${S.list.length})</option>`+STS.map(s=>`<option value="${s}">${s} (${S.list.filter(p=>p.stat===s).length})</option>`).join("");$("fs").value=S.fs||"";
+ $("lg").style.display=S.logo?"":"none";if(S.logo)$("lg").src=S.logo;$("lgx").style.display=S.logo?"":"none";
+ $("tbl").innerHTML=tableHTML(true);
+ let ev=0,tot=0,left=0,out=0,late=0,gx=0,pen=0,cs=0,pg=0,cnt={run:0,done:0,fut:0,all:0,ext:0},warn=[],gw=[],vt=0,bl=0;
+ S.list.forEach(p=>{const c=calc(p),k=cat(p,c);cnt[k]++;cnt.all++;if(c.out>0)cnt.ext++;if(k==="run"&&c.rem!=null&&c.rem<=S.ae)warn.push(`${p.name} (باقي ${c.rem} يوم)`);if(c.gd!=null&&c.gd<=S.al){gx++;gw.push(`${p.name} (${c.gd<0?"منتهي":"باقي "+c.gd+" يوم"})`)}if(!(S.tab==="all"||S.tab==="ext"||k===(S.tab||"run")))return;ev+=c.ev||0;tot+=c.tot;left+=c.left;out+=c.out;if(c.st===2||c.st===4)late++;pen+=c.pen;cs+=c.cost;pg+=c.pg;vt+=c.vat;bl+=p.billed||0});
+ $("cards").innerHTML=[["عدد المشاريع",S.list.length],["إجمالي قيم المشاريع",nf(ev)],["إجمالي المنفذ",nf(tot)],["إجمالي المتبقي",nf(left)],["المستخلصات القائمة",nf(out)],["مشاريع متأخرة",late],["ضمانات قاربت على الانتهاء",gx],["غرامات متوقعة",nf(pen)],["ضريبة المفوتر",nf(vt)],[S.vm==="excl"?"المفوتر شامل الضريبة":"المفوتر قبل الضريبة",nf(S.vm==="excl"?bl+vt:bl-vt)]].concat(window.VIEW?[]:[["إجمالي التكاليف",nf(cs)],["مجمل الربح",nf(pg)]])
+  .map(a=>`<div class="card"><small>${a[0]}</small><b>${a[1]}</b></div>`).join("");
+ $("alr").innerHTML=(warn.length?`<div>⚠ مشاريع قاربت على انتهاء مدتها: <b>${warn.map(esc).join("، ")}</b></div>`:"")+(gw.length?`<div>⚠ خطابات ضمان قاربت على الانتهاء: <b>${gw.map(esc).join("، ")}</b></div>`:"");$("alr").style.display=warn.length||gw.length?"":"none";
+ document.querySelectorAll("[data-tab]").forEach(b=>{const k=b.dataset.tab;b.className=k===(S.tab||"run")?"p":"";b.textContent=TN[k]+" ("+cnt[k]+")"});
+}
+function openForm(i){
+ edit=i;D=i>=0?JSON.parse(JSON.stringify(S.list[i])):{changes:[],files:[]};D.changes=D.changes||[];D.files=D.files||[];const p=D;$("ft").textContent=i>=0?"تعديل المشروع":"مشروع جديد";
+ $("fg").innerHTML=FIELDS.map(f=>`<label class="${f[3]?"full":""}">${f[1]}${inp(f,p)}</label>`).join("");
+ $("dl").style.display=i>=0?"":"none";$("ov").classList.add("on");drawCh();if(RO)document.querySelectorAll("#fg input,#fg select,#ct,#cn2,#cd,#cb").forEach(e=>e.disabled=true);
+}
+$("add").onclick=()=>openForm(-1);
+$("cn").onclick=()=>$("ov").classList.remove("on");
+$("sv").onclick=()=>{
+ const p={};document.querySelectorAll("[data-f]").forEach(el=>{const f=el.dataset.f,t=FIELDS.find(x=>x[0]===f)[2];p[f]=t==="n"?(+el.value||0):el.value.trim()});
+ if(!p.name){msg("اكتب اسم المشروع");return}p.changes=D.changes;p.files=D.files;
+ edit>=0?S.list[edit]=p:S.list.push(p);S.tab=cat(p,calc(p));save();$("ov").classList.remove("on");render();
+};
+$("dl").onclick=()=>{if(confirm("حذف هذا المشروع نهائياً؟")){S.list.splice(edit,1);save();$("ov").classList.remove("on");render()}};
+$("tbl").onclick=e=>{const t=e.target.closest("[data-e]");if(t){e.preventDefault();openForm(+t.dataset.e)}};
+$("thr").onchange=e=>{S.thr=Math.max(0,+e.target.value||0);save();render()};
+function msg(t){const m=$("msg");m.textContent=t;m.style.display="block";clearTimeout(msg.t);msg.t=setTimeout(()=>m.style.display="none",3500)}
+async function saver(name,data){
+ let d=null;try{d=window.claude?await claude.use("downloads"):null}catch(e){}
+ if(!d){try{const b=data instanceof Blob?data:new Blob([data]),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);msg("تم التصدير")}catch(e){msg("تعذّر التصدير")}return}
+ try{await d.save({filename:name,data});msg("تم التصدير")}catch(e){if(e&&e.code!=="declined")msg("تعذّر التصدير")}
+}
+const stamp=()=>new Date().toISOString().slice(0,10);
+$("xl").onclick=async()=>{
+ if(!S.list.length){msg("لا توجد بيانات للتصدير");return}
+ const rows=[COLS.map(c=>c[0])];const fm={n:"#,##0",i:"#,##0",r:"#,##0",rd:"#,##0;[Red]-#,##0",d:"dd/mm/yyyy",p:"0.0%",v:"0.0%"};
+ const lc=ms=>{if(ms==null)return null;const d=new Date(ms);return new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),12)};
+ S.list.forEach(p=>{const c=calc(p);rows.push(COLS.map(col=>{const v=col[1](p,c);return col[2]==="d"?lc(v):(v??"")}))});
+ const ws=XLSX.utils.aoa_to_sheet(rows,{cellDates:true});
+ rows.forEach((r,ri)=>{if(!ri)return;COLS.forEach((col,ci)=>{const a=ws[XLSX.utils.encode_cell({r:ri,c:ci})];if(a&&fm[col[2]])a.z=fm[col[2]]})});
+ ws["!cols"]=COLS.map((c,i)=>({wch:i<3?24:16}));
+ const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,"الحالة التنفيذية");
+ const er=[["اسم المشروع","الجهة المالكة","آيبان المشروع","التصنيف","إجمالي المفوتر","ما تم صرفه","المستخلصات القائمة","المحتجزات","صافي المستحق تحصيله"]];S.list.forEach(p=>{const c=calc(p);if(c.out>0)er.push([p.name,p.owner||"",p.iban||"",CL[cat(p,c)],p.billed||0,p.paid||0,c.out,c.ret,c.net])});
+ const w2=XLSX.utils.aoa_to_sheet(er);w2["!cols"]=er[0].map(()=>({wch:20}));XLSX.utils.book_append_sheet(wb,w2,"المستخلصات القائمة");
+ await saver("الحالة_التنفيذية_"+stamp()+".xlsx",XLSX.write(wb,{bookType:"xlsx",type:"array"}));
+};
+$("pdf").onclick=async()=>{
+ if(!S.list.length){msg("لا توجد بيانات للتصدير");return}
+ msg("جاري إنشاء PDF...");
+ const w=document.createElement("div");
+ w.style.cssText="position:fixed;left:-99999px;top:0;background:#fff;color:#111;padding:20px;direction:rtl;width:max-content;font-family:Cairo,Tahoma,Arial,sans-serif;color-scheme:light;--card:#fff;--line:#d5dbe6;--mut:#667089;--head:#1f3864;--alt:#f4f6fa;--fg:#111;--ac:#1f3864;--bad:#c62828";
+ w.innerHTML=`<div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">${S.logo?`<img src="${S.logo}" style="max-height:70px;max-width:220px">`:""}<div><h2 style="margin:0 0 4px;color:#1f3864">${S.co?esc(S.co)+" - ":""}الحالة التنفيذية للمشاريع${" - "+TN[S.tab||"run"]}</h2><div style="color:#555">تاريخ التقرير: ${df(today())}</div></div></div>`+tableHTML(false);
+ document.body.appendChild(w);
+ try{
+  await Promise.all([...w.querySelectorAll("img")].map(i=>i.decode?i.decode().catch(()=>{}):0));
+  const cv=await html2canvas(w,{scale:2,backgroundColor:"#fff"});
+  const pdf=new jspdf.jsPDF("l","pt","a3"),pw=pdf.internal.pageSize.getWidth()-40,ph=pdf.internal.pageSize.getHeight()-40;
+  const iw=pw,ih=cv.height*iw/cv.width,img=cv.toDataURL("image/jpeg",.92);
+  for(let y=0;y<ih;y+=ph){if(y)pdf.addPage();pdf.addImage(img,"JPEG",20,20-y,iw,ih)}
+  await saver("الحالة_التنفيذية_"+stamp()+".pdf",pdf.output("blob"));
+ }catch(e){msg("تعذّر إنشاء PDF")}finally{w.remove()}
+};
+const migrate=()=>{S.vr=S.vr||15;S.vm=S.vm||"incl";S.al=S.al??60;S.ae=S.ae??30;S.tab=S.tab||"run";S.list.forEach(p=>{if(p.changes)return;p.changes=[];if(p.mv>0&&p.mv!==p.cv)p.changes.push({type:"value",n:p.mv-p.cv,d:"",b:"تعديل سابق",files:[]});if(p.d1>0&&p.d1!==p.d0)p.changes.push({type:"time",n:p.d1-p.d0,d:"",b:"تمديد سابق",files:[]});delete p.mv;delete p.d1})};
+const inp=(f,p)=>f[2]==="sel"?`<select data-f="${f[0]}">${STS.map(s=>`<option ${p[f[0]]===s?"selected":""}>${s}</option>`).join("")}</select>`:`<input data-f="${f[0]}" type="${f[2]==="n"?"number":f[2]}" ${f[2]==="n"?'step="any"':""} value="${esc(p[f[0]]??"")}">`;
+const fl=(a,k)=>(a||[]).map((f,j)=>`<a href="${esc(f.url)}" target="_blank" style="margin:0 6px">📎 ${esc(f.name)}</a><a href="#" data-rf="${k}:${j}" style="color:var(--bad)">✕</a>`).join("");
+function readF(){const p={};document.querySelectorAll("[data-f]").forEach(el=>{const f=el.dataset.f,t=FIELDS.find(x=>x[0]===f)[2];p[f]=t==="n"?(+el.value||0):el.value.trim()});p.changes=D.changes;return p}
+function drawPv(){const p=readF(),c=calc(p);$("pv").innerHTML=`المدة المعتمدة: <b>${c.du}</b> يوم | تاريخ الاستلام الابتدائي: <b>${c.end?df(c.end):"-"}</b> | القيمة المعتمدة: <b>${nf(c.ev)}</b> | نسبة المدة المنقضية: <b>${c.tp==null?"-":pf(c.tp)}</b>`}
+function drawCh(){
+ $("chl").innerHTML=D.changes.length?D.changes.map((x,i)=>`<div class="note" style="margin:4px 0;padding:6px 8px;border:1px solid var(--line);border-radius:8px">${x.type==="time"?"تمديد مدة":"تعديل قيمة"}: <b>${nf(x.n)}</b>${x.type==="time"?" يوم":""} | ${x.d?df(Date.parse(x.d+"T00:00:00Z")):""} | ${esc(x.b)} ${fl(x.files,"c"+i)} <button data-up="c${i}">📎</button> <button class="d" data-dc="${i}">حذف</button></div>`).join(""):'<div class="note">لا توجد تعديلات</div>';
+ $("pfl").innerHTML=fl(D.files,"p");drawPv()}
+async function up(arr){const i=document.createElement("input");i.type="file";i.onchange=async()=>{const f=i.files[0];if(!f)return;let a=null;try{a=window.claude?await claude.use("assets"):null}catch(e){}
+ if(!a){msg("رفع المرفقات غير متاح في هذا العرض");return}
+ try{msg("جاري الرفع...");const r=await a.upload(f);arr.push({id:r.id,name:f.name,url:r.url});drawCh();msg("تم الرفع")}catch(e){msg("تعذّر الرفع، المدعوم: PDF وصور ونصوص")}};i.click()}
+$("ov").addEventListener("click",e=>{const t=e.target,ds=t.dataset||{};
+ if(ds.dc!=null&&ds.dc!==""){D.changes.splice(+ds.dc,1);drawCh()}
+ if(ds.up)up(D.changes[+ds.up.slice(1)].files);
+ if(ds.rf){e.preventDefault();const[k,j]=ds.rf.split(":");(k==="p"?D.files:D.changes[+k.slice(1)].files).splice(+j,1);drawCh()}});
+$("fg").addEventListener("input",drawPv);
+$("pup").onclick=()=>up(D.files);
+$("cadd").onclick=()=>{const n=+$("cn2").value;if(!n){msg("اكتب عدد الأيام أو المبلغ");return}D.changes.push({type:$("ct").value,n,d:$("cd").value,b:$("cb").value.trim(),files:[]});$("cn2").value=$("cb").value="";drawCh()};
+$("q").oninput=e=>{S.q=e.target.value;render()};
+$("fs").onchange=e=>{S.fs=e.target.value;render()};
+$("vr").onchange=e=>{S.vr=+e.target.value||15;save();render()};
+$("vm").onchange=e=>{S.vm=e.target.value;save();render()};
+$("al").onchange=e=>{S.al=Math.max(0,+e.target.value||0);save();render()};
+$("co").onchange=e=>{S.co=e.target.value.trim();save()};
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;render()});
+$("ae").onchange=e=>{S.ae=Math.max(0,+e.target.value||0);save();render()};
+$("bk").onclick=()=>saver("نسخة_احتياطية_"+stamp()+".json",new Blob([JSON.stringify(S)],{type:"application/json"}));
+$("im").onclick=()=>$("imf").click();
+function buildView(){
+ const d=document.documentElement.cloneNode(true);
+ d.querySelectorAll("script[src]").forEach(s=>s.remove());
+ ["tbl","cards","alr","fg","chl","pfl","pv"].forEach(i=>{const e=d.querySelector("#"+i);if(e)e.innerHTML=""});
+ d.querySelector("#ov").className="";d.querySelector("#msg").style.display="none";d.querySelector("body").className="";
+ const sd={list:S.list.map(p=>{const o=Object.assign({},p);delete o.cost;delete o.est;delete o.iban;o.files=[];o.changes=(o.changes||[]).map(c=>Object.assign({},c,{files:[]}));return o}),thr:S.thr,logo:S.logo||"",co:S.co||"",vr:S.vr||15,vm:S.vm||"incl",al:S.al??60,ae:S.ae??30,t:Date.now()};
+ d.querySelector("#seed").textContent=JSON.stringify(sd).replace(/<\//g,"<\\/");
+ const m=[...d.querySelectorAll("script")].find(s=>!s.src&&!s.id&&!s.type);
+ const v=document.createElement("script");v.textContent="window.VIEW=1";m.parentNode.insertBefore(v,m);
+ return"<!DOCTYPE html>\n"+d.outerHTML}
+$("mg").onclick=()=>saver("نسخة_المدير_"+stamp()+".html",new Blob([buildView()],{type:"text/html"}));
+$("sh").onclick=async()=>{const nm="نسخة_المدير_"+stamp()+".html",html=buildView();
+ try{const f=new File([html],nm,{type:"text/html"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"الحالة التنفيذية للمشاريع"});return}}catch(e){if(e&&e.name==="AbortError")return}
+ msg("المشاركة المباشرة غير متاحة هنا، سأنزّل الملف لترسله");await saver(nm,new Blob([html],{type:"text/html"}))};
+$("imf").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.list))throw 0;if(!confirm("استبدال كل البيانات الحالية ببيانات النسخة الاحتياطية؟"))return;const keep={q:S.q,tab:S.tab};S=Object.assign({list:[],thr:10},d,keep);migrate();save();render();msg("تم الاستيراد")}catch(x){msg("ملف غير صالح")}};r.readAsText(f);e.target.value=""};
+$("lgb").onclick=()=>$("lf").click();
+$("lgx").onclick=()=>{S.logo="";save();render()};
+$("lf").onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image(),u=URL.createObjectURL(f);
+ im.onload=()=>{const k=Math.min(1,300/im.width,150/im.height),c=document.createElement("canvas");c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));const x=c.getContext("2d");x.drawImage(im,0,0,c.width,c.height);
+  let d=c.toDataURL("image/png");if(d.length>180000){x.globalCompositeOperation="destination-over";x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);d=c.toDataURL("image/jpeg",.85)}
+  URL.revokeObjectURL(u);S.logo=d;save();render();msg("تم حفظ الشعار")};
+ im.onerror=()=>msg("تعذّر قراءة الصورة");im.src=u;e.target.value=""};
+(async()=>{
+ try{db=window.claude?await claude.use("db"):null}catch(e){db=null}
+ try{const u=window.claude?await claude.use("user"):null;if(u&&!(await u.canEdit())){RO=true;document.body.classList.add("ro");["thr","vr","vm","al","ae","co"].forEach(i=>$(i).disabled=true);document.querySelector("h1").textContent+=" (عرض فقط)"}}catch(e){}
+ if(!db){setSync("محفوظ على هذا الجهاز فقط");return}
+ setSync("جاري المزامنة...");
+ const timer=setTimeout(()=>setSync("تعذّر الوصول للسيرفر حالياً، البيانات المعروضة محلية"),10000);
+ let done=false;
+ db.doc("app/state").onSnapshot(s=>{clearTimeout(timer);
+  if(s.exists){const d=s.data();S={list:d.list||[],thr:d.thr??10,logo:d.logo||"",co:d.co||"",vr:d.vr||15,vm:d.vm||"incl",al:d.al??60,ae:d.ae??30,q:S.q||"",fs:S.fs||"",tab:S.tab||"run"};try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}render();setSync("☁ محفوظ ومتزامن")}
+  else if(!s.metadata.fromCache&&!done){done=true;pushDb()}
+ },e=>{clearTimeout(timer);setSync("⚠ تعذّر الاتصال بالسيرفر، البيانات محلية")});
+})();
+const FSA="showSaveFilePicker" in window;let fh=null,fmod=0,fwt=null;
+const JT=[{description:"JSON",accept:{"application/json":[".json"]}}];
+const idb=(m,v)=>new Promise((ok,no)=>{const r=indexedDB.open("pjfs",1);r.onupgradeneeded=()=>r.result.createObjectStore("k");r.onerror=()=>no(r.error);r.onsuccess=()=>{const s=r.result.transaction("k",m==="get"?"readonly":"readwrite").objectStore("k"),q=m==="get"?s.get("h"):m==="put"?s.put(v,"h"):s.delete("h");q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)}});
+const snap=()=>{const o=Object.assign({},S);delete o.q;delete o.fs;delete o.tab;return JSON.stringify(o)};
+const updLk=()=>{$("lk").textContent=fh?"ملف البيانات: "+fh.name:"ربط ملف بيانات"};
+const fPerm=async ask=>{try{const o={mode:"readwrite"};let p=await fh.queryPermission(o);if(p!=="granted"&&ask)p=await fh.requestPermission(o);return p==="granted"}catch(e){return false}};
+async function fWrite(){if(!fh)return;try{if(!await fPerm(false)){setSync("📁 اضغط زر ملف البيانات لتفعيل الحفظ في الملف");return}const w=await fh.createWritable();await w.write(snap());await w.close();fmod=(await fh.getFile()).lastModified;setSync("📁 محفوظ في الملف: "+fh.name)}catch(e){msg("تعذّر الحفظ في الملف")}}
+async function fRead(force){if(!fh)return false;if(!force&&$("ov").classList.contains("on"))return false;try{const f=await fh.getFile();if(!force&&f.lastModified===fmod)return false;const t=await f.text();fmod=f.lastModified;if(!t.trim())return false;const d=JSON.parse(t);if(!Array.isArray(d.list))return false;const k={q:S.q,fs:S.fs,tab:S.tab};S=Object.assign({list:[],thr:10},d,k);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}render();setSync("📁 مرتبط بالملف: "+fh.name);return true}catch(e){return false}}
+$("lk").onclick=async()=>{
+ if(fh){if(await fPerm(false)){if(confirm("إلغاء ربط ملف البيانات؟ (لن يُحذف الملف)")){fh=null;try{await idb("del")}catch(e){}updLk();setSync("محفوظ على هذا الجهاز فقط")}}else if(await fPerm(true)){await fRead(true);msg("تم تفعيل الربط")}return}
+ try{const ex=confirm("هل عندك ملف بيانات محفوظ من قبل؟\nموافق = اختيار ملف موجود\nإلغاء = إنشاء ملف جديد ببياناتك الحالية");
+  const h=ex?(await showOpenFilePicker({types:JT}))[0]:await showSaveFilePicker({suggestedName:"projects_data.json",types:JT});
+  fh=h;if(!await fPerm(true)){fh=null;return}await idb("put",h);updLk();
+  if(!(ex&&await fRead(true)))await fWrite();else msg("تم تحميل البيانات من الملف")
+ }catch(e){if(e&&e.name!=="AbortError")msg("الربط غير متاح هنا، افتح الملف مباشرة من الكمبيوتر بمتصفح Chrome أو Edge")}};
+if(FSA&&!window.claude&&!window.VIEW){$("lk").style.display="";(async()=>{try{fh=await idb("get")}catch(e){}if(fh){updLk();if(await fPerm(false))await fRead(true);else setSync("📁 ملف مرتبط: اضغط زر ملف البيانات لتفعيله")}})();window.addEventListener("focus",()=>fRead(false));setInterval(()=>fRead(false),20000)}
+if(window.VIEW){RO=true;document.body.classList.add("ro","view");["thr","vr","vm","al","ae","co"].forEach(i=>$(i).disabled=true);document.querySelector("h1").textContent="الحالة التنفيذية للمشاريع (عرض فقط)";setSync("نسخة عرض بتاريخ "+df(S.t||Date.now()))}
+let day=today();
+const tick=()=>{if(today()!==day){day=today()}render()};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick()});
+setInterval(()=>{if(today()!==day)tick()},60000);
+render();
+</script>
+</body>
+</html>
